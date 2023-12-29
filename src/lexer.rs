@@ -140,7 +140,7 @@ impl Lexer {
                         if chars[i..(i + keywoard.0.len())].iter().collect::<String>() == keywoard.0
                         {
                             i += keywoard.0.len() - 1;
-                            tokenvec.push(keywoard.1);
+                            tokenvec.push(keywoard.1.clone());
 
                             if keywoard.1 == TokenType::Var {
                                 // remove identifier
@@ -165,7 +165,7 @@ impl Lexer {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum TokenType {
     // Single-character tokens.
     LeftParen,
