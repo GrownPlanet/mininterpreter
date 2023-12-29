@@ -63,7 +63,7 @@ impl Lexer {
                 ' ' => (),
                 '"' => {
                     let mut string = String::new();
-                    
+
                     i += 1;
                     let mut c2;
                     loop {
@@ -76,14 +76,15 @@ impl Lexer {
 
                         i += 1;
                         if i >= input.len() {
-                            break;
+                            println!("String not closed: line: {}", input);
+                            return vec![];
                         }
                     }
                     tokenvec.push(TokenType::String(string));
                 }
                 '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {
                     let mut num = String::new();
-                    
+
                     let mut c2;
                     let mut dotted = false;
 
@@ -91,7 +92,7 @@ impl Lexer {
                         c2 = chars[i];
 
                         if !(c2.is_ascii_digit() || c2 == '.' && !dotted) {
-                            i-=1;
+                            i -= 1;
                             break;
                         }
                         if c2 == '.' {
@@ -113,31 +114,39 @@ impl Lexer {
                 }
                 _ => {
                     let keywoards = [
-                        ("and", TokenType::And), 
-                        ("class", TokenType::Class), 
-                        ("else", TokenType::Else), 
-                        ("false", TokenType::False), 
-                        ("fn", TokenType::Fun), 
-                        ("for", TokenType::For), 
-                        ("if", TokenType::If), 
-                        ("nil", TokenType::Nil), 
-                        ("or", TokenType::Or), 
-                        ("print", TokenType::Print), 
-                        ("return", TokenType::Return), 
-                        ("super", TokenType::Super), 
-                        ("this", TokenType::This), 
-                        ("true", TokenType::True), 
-                        ("var", TokenType::Var), 
-                        ("while", TokenType::While), 
+                        ("and", TokenType::And),
+                        ("class", TokenType::Class),
+                        ("else", TokenType::Else),
+                        ("false", TokenType::False),
+                        ("fn", TokenType::Fun),
+                        ("for", TokenType::For),
+                        ("if", TokenType::If),
+                        ("nil", TokenType::Nil),
+                        ("or", TokenType::Or),
+                        ("print", TokenType::Print),
+                        ("return", TokenType::Return),
+                        ("super", TokenType::Super),
+                        ("this", TokenType::This),
+                        ("true", TokenType::True),
+                        ("let", TokenType::Var),
+                        ("while", TokenType::While),
                     ];
                     let mut found_keywoard = false;
                     for keywoard in keywoards {
                         if chars.len() < keywoard.0.len() + i {
                             continue;
                         }
-                        if &chars[i..(i+keywoard.0.len())].iter().collect::<String>() == keywoard.0 {
+
+                        if chars[i..(i + keywoard.0.len())].iter().collect::<String>() == keywoard.0
+                        {
                             i += keywoard.0.len() - 1;
                             tokenvec.push(keywoard.1);
+
+                            if keywoard.1 == TokenType::Var {
+                                // remove identifier
+                                tokenvec.push(TokenType::Identifier)
+                            }
+
                             found_keywoard = true;
                             break;
                         }
@@ -156,22 +165,54 @@ impl Lexer {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum TokenType {
     // Single-character tokens.
-    LeftParen, RightParen, LeftBrace, RightBrace,
-    Comma, Dot, Minus, Plus, Semicolon, Slash, Star,
+    LeftParen,
+    RightParen,
+    LeftBrace,
+    RightBrace,
+    Comma,
+    Dot,
+    Minus,
+    Plus,
+    Semicolon,
+    Slash,
+    Star,
 
     // One or two character tokens.
-    Bang, BangEqual, Equal, EqualEqual, Greater,
-    GreaterEqual, Less, LessEqual, 
+    Bang,
+    BangEqual,
+    Equal,
+    EqualEqual,
+    Greater,
+    GreaterEqual,
+    Less,
+    LessEqual,
 
     // Literals.
-    Identifier, String(String), Intiger(i32), Float(f32),
-    
+    Identifier,
+    String(String),
+    Intiger(i32),
+    Float(f32),
+
     // Keywords.
-    And, Class, Else, False, Fun, For, If, Nil, Or,
-    Print, Return, Super, This, True, Var, While,
+    And,
+    Class,
+    Else,
+    False,
+    Fun,
+    For,
+    If,
+    Nil,
+    Or,
+    Print,
+    Return,
+    Super,
+    This,
+    True,
+    Var,
+    While,
 
     Eof,
 }
